@@ -1,0 +1,119 @@
+exit 关闭 退出
+
+visudo编写sudo权限
+
+ifconfig查看IP地址
+
+yum -y install lrzsz 下载
+
+rz sz 
+
+grep-n 'name'查找
+
+touch i.txt创建文件
+
+mkdir name 创建文件夹
+
+chmod 777 文件名  更改权限
+
+免密登陆
+ssh-keygen -t rsa
+ssh-copy-id bogon
+ssh root@bogon
+ 
+tar zxvf  name.tar.gz  解压文件
+
+source /etc/profile 刷新配置环境D
+
+systemctl disable/stop/start  firewalld.service  防火墙
+
+cp zoo_sample.cfg zoo.cfg  拷贝
+
+scp -r /export/ root@clon://  远程拷贝
+
+mv zookeeper-jijiji zookeeper更改名字
+
+hadoop fs -ls /
+hadoop fs -mkdir -p /wordcount/input
+hadoop fs -put n.txt /wordcount/input
+hadoop fs -rm -r /wordcount/input
+
+netstat –nlpt  查看系统中哪些网络端口在连接及连接情况。
+
+jps  查看进程
+
+stop-all.sh 关闭所有进程
+
+start-all.sh 启动所有hadoop进程
+
+netstat -anp |grep 10000查看进程
+
+kill -9 no 关闭进程
+
+hive
+1.bin/hiveserver2 启动服务
+2.bin/beeline 启动客户端
+3.设置hive的jdbc访问协议：! connect jdbc:hive2://bogon:10000
+4.输入用户名密码
+
+
+https://www.cnblogs.com/qingyunzong/p/8723271.html
+show databases; 查看数据库
+use databasename; 使用数据库
+drop database dbname;删除数据库
+drop database if exists dbname;
+drop database if exists t3 cascade;删除含有表的数据
+show tables;显示所有表名
+show tables in myhive;
+show tables like 'student_c*';
+desc formatted/extended  student;
+show partitions student_ptn;显示表的分区
+select * from tablename;查看表中所有数据
+alter table student rename to new_student;修改表明
+select count(id) from tname;
+
+分隔符
+- create table t_1(id int,name string , age int) row format delimited fields terminated by ',' ;
+- hive建表的时候默认的分隔符是’\001’, ctrl+v然后ctrl+a ^A
+
+
+查看表信息：
+desc tablename; 简单信息
+desc extened tablename;  详细信息
+desc formatted tablename;  格式化详细信息
+
+将/root/name.txt里面的数据传到table中，传到hadoop中
+1. hadoop fs -put  t.txt /use
+2.load data local inpath '/root/name.txt' into table 表明
+
+
+分桶
+1.开启分桶 ：分桶的实质是设置reduce的个数，分为几桶就有几个reduceTask来完成，就会产生几个文件
+sql: set hive.enforce.bucketing =true;
+sql: set mapreduce.job.reduces=4;
+2，创建分桶表
+create table t_buck_student (no int,name string,sex string,age int,major string) clustered by (no) sorted by (no desc)  into 4 buckets row format delimited fields terminated by  ',';
+3、导入数据
+分桶数据导入不能用load命令，load命令的实质是hive代我们执行命令：
+hadoop fs -put,所以没有执行mr，分桶效果看不到。
+首先创建临时表
+sql: create table t_student (no int,name string,sex string,age int,major string) row format delimited fields terminated by  ',';
+sql: load data local inpath '/root/students.txt' into table  t_student;
+
+现在执行一下：
+sql:  select * from t_student cluster by (no);
+
+sql: set hive.enforce.bucketing =true;
+sql: set mapreduce.job.reduces=4;
+
+
+内部表，外部表
+在hdfs的/student目录下面有结构化数据student.txt,创建外部表和它建立映射：
+create external table t_ext_student (no int,name string,sex string,age int,major string) row format delimited fields terminated by  ','  location '/student';
+
+
+加多条分区
+ alter table t_year_month add partition(year='2018',month='09') location '/user/hive/warehouse/ptest.db/t_year_month/year=2018/month=099'partition(year='2018',month='11') location '/user/hive/warehouse/ptest.db/t_year_month/year=2018/month=11';
+
+
+
